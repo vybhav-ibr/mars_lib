@@ -97,6 +97,10 @@ set(headers
     ${include_path}/sensors/velocity/velocity_measurement_type.h
     ${include_path}/sensors/velocity/velocity_sensor_class.h
     ${include_path}/sensors/velocity/velocity_sensor_state_type.h
+    ${include_path}/sensors/uwb/uwb_measurement_type.h
+    ${include_path}/sensors/uwb/uwb_sensor_state_type.h
+    ${include_path}/sensors/uwb/uwb_sensor_class.h
+    ${include_path}/sensors/uwb/uwb_sensor_data.h
     ${include_path}/data_utils/read_csv.h
     ${include_path}/data_utils/write_csv.h
     ${include_path}/data_utils/read_sim_data.h

@@ -33,6 +33,7 @@ set(sources
     mars_gps_conversion.cpp
     mars_gps_utils.cpp
     #mars_gps_sensor.cpp
+    mars_uwb_sensor.cpp
     mars_pose_sensor.cpp
     mars_vision_sensor.cpp
     mars_position_sensor.cpp
