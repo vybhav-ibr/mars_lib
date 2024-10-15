@@ -33,7 +33,7 @@ TEST_F(mars_uwb_sensor_test, UWB_SENSOR_MEASUREMENT)
   int id=1;
   double range =0.0;
 
-  mars::UwbMeasurementType measurement(timestamp,id,range);
+  mars::UwbMeasurementType measurement(id,range);
 
   std::cout << "Range: " << measurement.range << std::endl;
   std::cout << "ID: " << measurement.id << std::endl;
@@ -41,11 +41,11 @@ TEST_F(mars_uwb_sensor_test, UWB_SENSOR_MEASUREMENT)
 
 TEST_F(mars_uwb_sensor_test, UWB_SENSOR_INIT)
 {
-  double timestamp=100000;
+  //double timestamp=100000;
   int id=1;
   double range =0.0;
 
-  mars::UwbMeasurementType measurement(timestamp,id,range);
+  mars::UwbMeasurementType measurement(id,range);
 
 
   mars::CoreState core_states;
@@ -63,7 +63,7 @@ TEST_F(mars_uwb_sensor_test, UWB_UPDATE)
   int id=1;
   double range =0.0;
 
-  mars::UwbMeasurementType measurement(timestamp,id,range);
+  mars::UwbMeasurementType measurement(id,range);
 
 
   mars::CoreState core_states;

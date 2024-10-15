@@ -24,7 +24,7 @@ public:
 
   Eigen::Vector3d p_ip_;
 
-  UwbSensorStateType() : BaseStates(3)  // size of covariance
+  UwbSensorStateType() : BaseStates(6)  // size of covariance
   {
      p_ip_.setZero();
     

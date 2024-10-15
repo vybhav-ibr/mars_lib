@@ -78,7 +78,7 @@ public:
 
     UwbSensorData sensor_state;
     std::string calibration_type;
-    this->initial_calib_provided_=false;
+    this->initial_calib_provided_=true;
     if (this->initial_calib_provided_)
     {
       calibration_type = "Given";
@@ -107,7 +107,7 @@ public:
     return result;
   }
 
-  bool CalcUpdate(const Time& /*timestamp*/, std::shared_ptr<void> measurement, const CoreStateType& prior_core_state,
+  bool CalcUpdate(const Time& timestamp, std::shared_ptr<void> measurement, const CoreStateType& prior_core_state,
                   std::shared_ptr<void> latest_sensor_data, const Eigen::MatrixXd& prior_cov,
                   BufferDataType* new_state_data)
   {
@@ -118,15 +118,15 @@ public:
     // Decompose sensor measurement
     double p_meas = meas->range;
     int anchor_id=meas->id;
-    AnchorData* anchor = new AnchorData(0);
+    AnchorData* anchor = new AnchorData(2);
 
-    try{
-      delete anchor;
-      anchor=new AnchorData(anchor_id);
-    }catch (const std::out_of_range &oor) {
-    std::cout<<"[UWB Update] No anchor found for the given measurement ID %d"<< anchor_id;
-    exit(EXIT_FAILURE);
-    }
+    // try{
+    //   delete anchor;
+    //   anchor=new AnchorData(anchor_id);
+    // }catch (const std::out_of_range &oor) {
+    // std::cout<<"[UWB Update] No anchor found for the given measurement ID %d"<< anchor_id;
+    // exit(EXIT_FAILURE);
+    // }
 
     // Extract sensor state
     UwbSensorStateType prior_sensor_state(prior_sensor_data->state_);

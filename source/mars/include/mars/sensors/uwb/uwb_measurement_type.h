@@ -23,7 +23,7 @@ class UwbMeasurementType : public BaseMeas
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  double timestamp;
+  //double timestamp;
   int id;
   double range =-1;
 
@@ -31,9 +31,9 @@ public:
   // Eigen::VectorXd<double> dv_pairs_;               ///< distance validity pairs
   // //Eigen::Quaternion<double> orientation_;  ///< Quaternion [w x y z]
 
-  UwbMeasurementType(double timestamp, int id, double range)
+  UwbMeasurementType(int id, double range)
   {
-    timestamp=timestamp;
+    //timestamp=timestamp;
     id=id;
     range=range;
   }

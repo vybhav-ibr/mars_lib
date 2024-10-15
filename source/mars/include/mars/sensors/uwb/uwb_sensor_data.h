@@ -24,6 +24,7 @@
 
 #include <unordered_map>
 #include <Eigen/Eigen>
+#include <iostream>
 
 namespace mars
 {
@@ -53,7 +54,19 @@ public:
     double dist_bias = 0;
 
     // Static map of anchors
-    static std::map<int, Eigen::Vector3d> anchor_map;
+    std::map<int, Eigen::Vector3d> anchor_map={{1, Eigen::Vector3d(3.876000000000931, -0.059999999997671694, 1.859000000000151)},
+                {2, Eigen::Vector3d(0.05, 0.5, 0.0)},
+                {3, Eigen::Vector3d(-3.777000000004773, 1.1240000000107102, 1.7789999999999964)},
+                {4, Eigen::Vector3d(-2.6870000000082657, 11.045999999972992, 1.8100000000001728)},
+                {5, Eigen::Vector3d(1.5740000000048895, 10.826000000000931, 0.08300000000008367)},
+                {0, Eigen::Vector3d(5.071999999997206, 10.467000000004191, 1.9100000000000819)},
+                {7, Eigen::Vector3d(5.85000000000291, 20.602000000013504, 1.9390000000000782)},
+                {8, Eigen::Vector3d(2.0960000000020953, 20.98200000001816, 0.13800000000014734)},
+                {9, Eigen::Vector3d(-1.9030000000086147, 21.007999999972526, 1.8949999999999818)},
+                {10, Eigen::Vector3d(-1.4690000000002328, 30.988000000012107, 1.8110000000001492)},
+                {11, Eigen::Vector3d(2.2569999999948775, 31.21700000000419, 0.1570000000001528)},
+                {12, Eigen::Vector3d(6.127999999994063, 30.945999999996275, 0.9800000000000182)}}
+                ;
 
     /// Position of the anchor in global coordinates
     Eigen::Vector3d p_AinG;
@@ -74,10 +87,6 @@ public:
 };
 
 // Static map initialization outside the class definition
-std::map<int, Eigen::Vector3d> AnchorData::anchor_map = {
-    {1, Eigen::Vector3d(0.5, 0.8, 2.5)},
-    {2, Eigen::Vector3d(0.25, 0.568, 2.45)}
-};
 
 /**
  * @brief Struct for anchors information (id, anchors)
