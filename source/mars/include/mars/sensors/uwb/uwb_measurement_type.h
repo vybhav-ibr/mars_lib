@@ -25,17 +25,15 @@ public:
 
   //double timestamp;
   int id;
-  double range =-1;
+  double range;
 
   // Eigen::Vector3d position_;
   // Eigen::VectorXd<double> dv_pairs_;               ///< distance validity pairs
   // //Eigen::Quaternion<double> orientation_;  ///< Quaternion [w x y z]
+  UwbMeasurementType() = default;
 
-  UwbMeasurementType(int id, double range)
+  UwbMeasurementType(int id_, double range_):id(id_),range(range_)
   {
-    //timestamp=timestamp;
-    id=id;
-    range=range;
   }
 
   // UwbMeasurementType(Eigen::VectorXd<double> dv_pairs_, const Eigen::Vector3d& position)

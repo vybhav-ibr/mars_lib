@@ -81,7 +81,7 @@ public:
             dist_bias = 0;
             p_AinG = it->second;  // Set the position from the map
         } else {
-            std::cerr << "ID not found in anchor_map" << std::endl;
+            std::cerr << "ID not found in anchor_map: " <<id << std::endl;
         }
     }
 };

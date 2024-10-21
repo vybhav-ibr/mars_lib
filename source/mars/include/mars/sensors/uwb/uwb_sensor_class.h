@@ -46,7 +46,7 @@ public:
     initial_calib_provided_ = false;
 
     // chi2
-    chi2_.set_dof(3);
+    chi2_.set_dof(1);
 
     std::cout << "Created: [" << this->name_ << "] Sensor" << std::endl;
   }
@@ -71,10 +71,10 @@ public:
     initial_calib_provided_ = true;
   }
 
-  BufferDataType Initialize(const Time& timestamp, std::shared_ptr<void> sensor_data,
+  BufferDataType Initialize(const Time& timestamp, std::shared_ptr<void> /*sensor_data*/,
                             std::shared_ptr<CoreType> latest_core_data)
   {
-    UwbMeasurementType measurement = *static_cast<UwbMeasurementType*>(sensor_data.get());
+    //UwbMeasurementType measurement = *static_cast<UwbMeasurementType*>(sensor_data.get());
 
     UwbSensorData sensor_state;
     std::string calibration_type;
@@ -104,10 +104,12 @@ public:
     std::cout << "Info: Initialized [" << name_ << "] with [" << calibration_type << "] Calibration at t=" << timestamp
               << std::endl;
 
+    std::cout << "Info: [" << name_ << "] Calibration(rounded):" << std::endl;
+    std::cout << "\tPosition[m]: [" << sensor_state.state_.p_ip_.transpose() << " ]" << std::endl;
     return result;
   }
 
-  bool CalcUpdate(const Time& timestamp, std::shared_ptr<void> measurement, const CoreStateType& prior_core_state,
+  bool CalcUpdate(const Time& /*timestamp*/, std::shared_ptr<void> measurement, const CoreStateType& prior_core_state,
                   std::shared_ptr<void> latest_sensor_data, const Eigen::MatrixXd& prior_cov,
                   BufferDataType* new_state_data)
   {
@@ -120,19 +122,20 @@ public:
     int anchor_id=meas->id;
     AnchorData* anchor = new AnchorData(2);
 
-    // try{
-    //   delete anchor;
-    //   anchor=new AnchorData(anchor_id);
-    // }catch (const std::out_of_range &oor) {
-    // std::cout<<"[UWB Update] No anchor found for the given measurement ID %d"<< anchor_id;
-    // exit(EXIT_FAILURE);
-    // }
+    try{
+      delete anchor;
+      anchor=new AnchorData(anchor_id);
+    }catch (const std::out_of_range &oor) {
+    std::cout<<"[UWB Update] No anchor found for the given measurement ID %d"<< anchor_id;
+    exit(EXIT_FAILURE);
+    }
 
     // Extract sensor state
     UwbSensorStateType prior_sensor_state(prior_sensor_data->state_);
 
     //R_meas is noise
-    const Eigen::MatrixXd R_meas = pow(0.5,2)*Eigen::MatrixXd::Identity(1, 1);
+    //const Eigen::Matrix<double, 1, 1> R_meas = pow(0.5,2)*Eigen::MatrixXd::Identity(1, 1);
+    Eigen::Matrix<double, 1, 1> R_meas(pow(0.5,2));
 
     const int size_of_core_state = CoreStateType::size_error_;
     const int size_of_sensor_state = prior_sensor_state.cov_size_;
@@ -155,19 +158,17 @@ public:
     Eigen::MatrixXd H_I = Eigen::MatrixXd::Zero(1, 6);
     Eigen::MatrixXd H_z_cal = Eigen::MatrixXd::Zero(1, 3);
     Eigen::MatrixXd H_z_anc = Eigen::MatrixXd::Zero(1, 5);
+
+    Eigen::MatrixXd H_Ir= Eigen::MatrixXd::Zero(1, 3);
+    Eigen::MatrixXd H_Ip= Eigen::MatrixXd::Zero(1, 3);
     // Position
 
     const Eigen::Vector3d Hp_vwi = Eigen::Vector3d::Zero();
-    //const Eigen::Matrix3d Hp_rwi = -R_wi * Utils::Skew(P_ip);
     const Eigen::Vector3d Hp_bw = Eigen::Vector3d::Zero();
     const Eigen::Vector3d Hp_ba = Eigen::Vector3d::Zero();
-    //--const Eigen::Vector3d Hp_pip = R_wi;
 
-    // Calculate the residual z = z~ - (estimate)
-    // Position
-    //const Eigen::Vector3d p_est = (P_vw + R_vw * (P_wi + R_wi * P_ic)) * L;
-    Eigen::VectorXd res_p;// = p_meas - p_est;
-    res_p(0) = p_meas -
+    double res;
+    res = p_meas -
       ((1 + anchor->dist_bias) * ((anchor->p_AinG - (R_GtoI.transpose() * (-p_IinU) + p_IinG)).norm()) + anchor->const_bias);
 
     H_n.noalias() = ((anchor->p_AinG - (R_GtoI.transpose() * (-p_IinU) + p_IinG)).transpose()) /
@@ -176,6 +177,8 @@ public:
     H_z_I.block(0, 3, 3, 3).noalias() = -Eigen::Matrix3d::Identity();
     H_I.noalias() = (1 + anchor->dist_bias) * H_n * H_z_I;
 
+    H_Ir.noalias() =  (1 + anchor->dist_bias) * H_n * (-R_wi * Utils::Skew(P_ip));
+    H_Ip.noalias() =  (1 + anchor->dist_bias) * H_n * (-Eigen::Matrix3d::Identity());
     // Compute Jacobian wrt calibration state
     H_z_cal.noalias() = (1 + anchor->dist_bias) * H_n * R_GtoI.transpose();
 
@@ -185,16 +188,17 @@ public:
     H_z_anc(0, 4) = (anchor->p_AinG - (R_GtoI.transpose() * (-p_IinU) + p_IinG)).norm();
 
     // compute jacobian wrt bias
+    int width_of_jacobian=  H_Ip.cols() + Hp_vwi.transpose().cols() + H_Ir.cols() + Hp_bw.transpose().cols() + Hp_ba.transpose().cols() + H_z_anc.cols();
 
-    Eigen::MatrixXd H(1, H_I.cols()/2 + Hp_vwi.cols() + H_I.cols()/2 + Hp_bw.cols() + Hp_ba.cols() + H_z_cal.cols()+H_z_anc.cols());
+    Eigen::MatrixXd H(1, H_Ip.cols() + Hp_vwi.transpose().cols() + H_Ir.cols() + Hp_bw.transpose().cols() + Hp_ba.transpose().cols() + H_z_cal.cols());//+ H_z_cal.cols());
 
-    H << H_I.block(0,3,1,3), Hp_vwi, H_I.block(0,0,1,3), Hp_bw, Hp_ba, H_z_cal, H_z_anc ;
+    H << H_Ip, Hp_vwi.transpose(), H_Ir, Hp_bw.transpose(), Hp_ba.transpose(), H_z_cal;//, H_z_anc ;
 // convert linear vector to 3d matrices with matrix multiplication, 
 // (ask if possible) ignore distance and const bias, use the notation used in mars
 // use spearte jaconbians for callibaration state, anchor and stack at the end
 // enquire the dimesion of the noise jacobian and convert the single value to a 3*3 matrix if required   
     
-    Eigen::Matrix<double, 1, 1> residual_(res_p(0));
+    Eigen::Matrix<double, 1, 1> residual_(res);
     //residual_ = res_p(0);
 
     // Perform EKF calculations
@@ -256,8 +260,6 @@ public:
 
     UwbSensorStateType corrected_sensor_state;
     corrected_sensor_state.p_ip_ = prior_sensor_state.p_ip_ + correction.block(0, 0, 3, 1);
-    return corrected_sensor_state;
-
     return corrected_sensor_state;
   }
 };

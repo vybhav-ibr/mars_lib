@@ -23,10 +23,16 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   Eigen::Vector3d p_ip_;
+  //Eigen::Vector3d p_AinG_;
+  //double dist_bias;
+  //double const_bias;
 
-  UwbSensorStateType() : BaseStates(6)  // size of covariance
+  UwbSensorStateType() : BaseStates(3)  // size of covariance
   {
      p_ip_.setZero();
+    //  p_AinG_.setZero();
+      //dist_bias=0;
+      //const_bias=0;
     
   }
 
@@ -34,7 +40,7 @@ public:
   {
     std::stringstream os;
      os << "t, ";
-    os << "p_ip_x, p_ip_y, p_ip_z";
+     os << "p_ip_x, p_ip_y, p_ip_z";
     return os.str();
   }
 
